@@ -42,16 +42,6 @@ class MainGUI:
 		self.url = 'http://{}:{}/{}'.format(host, port, target)
 		self.liveStart = False	#-- start/stop live view
 
-		# Creates a temporary buffer which can hold the largest image we can transmit
-		self.img_max_size = 5000000
-		self.img_buf_0 = bytearray(self.img_max_size)
-		self.img_view_0 = memoryview(self.img_buf_0)
-
-		print('Type - img_buf: ', type(self.img_buf_0))
-		print('Type - img_view: ',type(self.img_view_0))
-		# self.img_buf_1 = bytearray(self.img_max_size)
-		# self.img_view_1 = memoryview(self.img_buf_1)
-
 
 	def Tk_mainloop(self):
 		self.root = TK.Tk()
@@ -92,11 +82,11 @@ class MainGUI:
 
 	def command_btnStart(self):
 		if self.liveStart:
-			print("--- btnStart ---")
+			print("--- btnSTOP ---")
 			self.liveStart = False
 			self.btnStart.configure(text="START")
 		else:
-			print("--- btnStop ---")
+			print("--- btnSTART ---")
 			self.liveStart = True
 			self.btnStart.configure(text="STOP")
 
@@ -142,6 +132,7 @@ while True:
 	#----------------------------------------------
 	resp = req.get(mainGUI.url, allow_redirects=True)
 
+	# print("Type - content: ", type(resp.content))
 	img_array = np.frombuffer(resp.content, dtype=np.dtype('uint8'))
 	img = cv2.imdecode(img_array, flags=cv2.IMREAD_UNCHANGED)
 	mainGUI.View.show(img)
