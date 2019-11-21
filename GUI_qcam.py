@@ -15,16 +15,16 @@ import requests as req
 #---- Use site-packages modules
 from cyTkGUI.cy_ViPanel import tkViPanel
 from cyTkGUI.cy_ViPanel import tkV3Frame
-# import cyTkGUI.cy_ViPanel as ViDISP
+from cy_Utils.cy_TimeStamp import TimeStamp
 
 
 ###########################################################
 # Argument Parser
 ###########################################################
 parser = argparse.ArgumentParser()
-parser.add_argument('--host', type=str, help='The host machine: localhost or IP of remote machine', default='10.34.149.29')
-parser.add_argument('--port', type=int, help='The port on which to connect the host', default=7777)
-parser.add_argument('--jpg', type=str, help='The jpeg file to display', default='test001.jpg')
+parser.add_argument("-m", '--host', type=str, help='The host machine: localhost or IP of remote machine', default='10.34.149.29')
+parser.add_argument("-p", '--port', type=int, help='The port on which to connect the host', default=-1)
+parser.add_argument("-j", '--jpg', type=str, help='The jpeg file to display', default='test001.jpg')
 # parser.add_argument('--jpeg_quality', type=int, help='The JPEG quality for compressing the reply', default=70)
 args = parser.parse_args()
 
@@ -35,11 +35,11 @@ args = parser.parse_args()
 class MainGUI:
 	"""
 	"""
-	def __init__(self, host, port, target):
+	def __init__(self, url):
 		self.thread = threading.Thread(target=self.Tk_mainloop, daemon=True, args=())
 		self.lock = threading.Lock()
 
-		self.url = 'http://{}:{}/{}'.format(host, port, target)
+		self.url = url
 		self.liveStart = False	#-- start/stop live view
 
 
@@ -109,14 +109,20 @@ def onClose():
 """
 evAckClose = threading.Event()
 evAckClose.clear()
-mainGUI = MainGUI(args.host, args.port, args.jpg)
+url = 'http://192.168.7.1/frame.jpeg'
+url = "http://{}".format(args.host)
+if args.port > 0:
+	url += ":{}".format(args.port)
+url += "/{}".format(args.jpg)
+
+mainGUI = MainGUI(url)
 mainGUI.thread.start()
 time.sleep(0.01)
 
 mainGUI.root.wm_protocol("WM_DELETE_WINDOW", onClose)
 
-# url = "http://10.34.149.29:7777/test001.jpg"
-# resp = req.get(url, allow_redirects=True)
+TS = TimeStamp(name="QCam", enable=False)
+TS.ProcStart()
 
 frame_index = 0
 while True:
@@ -125,16 +131,21 @@ while True:
 
 	if not mainGUI.liveStart:
 		time.sleep(0.5)
+		print("-x-", end="")
 		continue
 
+	TS.SubStart()
 	#----------------------------------------------
 	# 向 server 提取影像
 	#----------------------------------------------
 	resp = req.get(mainGUI.url, allow_redirects=True)
+	TS.SubEnd("getIMG")
 
+	TS.SubStart()
 	# print("Type - content: ", type(resp.content))
 	img_array = np.frombuffer(resp.content, dtype=np.dtype('uint8'))
 	img = cv2.imdecode(img_array, flags=cv2.IMREAD_UNCHANGED)
+	TS.SubEnd("cvtJPG")
 	mainGUI.View.show(img)
 
 	if frame_index == 9999999:
