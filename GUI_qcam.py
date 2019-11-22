@@ -4,6 +4,7 @@ GUI to browse amba raw streaming
 """
 import sys
 import numpy as np
+import math
 import cv2, time
 import tkinter as TK
 import threading
@@ -237,6 +238,30 @@ roi_rects.add("Q01", Qcc, roi_size)
 Qcc = interpolateXY(frame_Vb, frame_CC, corner_field)
 roi_rects.add("Q11", Qcc, roi_size)
 
+#---------- For callback draw
+class appCallbackDraw:
+	def __init__(self):
+		pass
+
+	def draw(self, cv_img):
+		# print("Type(cv_img): ", cv_img.shape)
+		hh, ww = cv_img.shape[:2]
+		hHalf, wHalf = hh/2.0, ww/2.0
+		delta_hh = int((wHalf)*math.tan(5/180.0))
+		delta_ww = int((hHalf)*math.tan(5/180.0))
+
+		#---- 水平斜5度線
+		p1 = (0, int(hHalf)+delta_hh)
+		p2 = (ww-1, int(hHalf)-delta_hh)
+		cv2.line(cv_img, p1, p2, (0, 0, 255), 4)
+
+		#---- 垂直斜5度線
+		p1 = (int(wHalf)-delta_ww, 0)
+		p2 = (int(wHalf)+delta_ww, hh-1)
+		cv2.line(cv_img, p1, p2, (0, 0, 255), 4)
+
+callbackDraw = appCallbackDraw()
+mainGUI.View.set_callbackObj(callbackDraw)
 
 frame_index = 0
 while True:
