@@ -26,9 +26,12 @@ from cy_Utils.cy_TimeStamp import TimeStamp
 # Argument Parser
 ###########################################################
 parser = argparse.ArgumentParser()
-parser.add_argument("-m", '--host', type=str, help='The host machine: localhost or IP of remote machine', default='10.34.149.29')
-parser.add_argument("-p", '--port', type=int, help='The port on which to connect the host', default=-1)
-parser.add_argument("-j", '--jpg', type=str, help='The jpeg file to display', default='test001.jpg')
+parser.add_argument("-m", '--host', type=str, default='10.34.149.29',
+	help='The host machine: localhost or IP of remote machine')
+parser.add_argument("-p", '--port', type=int, default=-1,
+	help='The port on which to connect the host')
+parser.add_argument("-j", '--jpg', type=str, default='test001.jpg',
+	help='The jpeg file to display')
 # parser.add_argument('--jpeg_quality', type=int, help='The JPEG quality for compressing the reply', default=70)
 args = parser.parse_args()
 
