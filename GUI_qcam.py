@@ -89,11 +89,11 @@ class MainGUI:
 
 	def command_btnStart(self):
 		if self.liveStart:
-			print("--- btnSTOP ---")
+			# print("--- btnSTOP ---")
 			self.liveStart = False
 			self.btnStart.configure(text="START")
 		else:
-			print("--- btnSTART ---")
+			# print("--- btnSTART ---")
 			self.liveStart = True
 			self.btnStart.configure(text="STOP")
 
@@ -169,6 +169,31 @@ def draw_focusing(frame, roi_rects, roi_scores):
 		roi_rects.draw(roi_name, frame, text="{}".format(score))
 
 
+#---------- For callback draw
+class appCallbackDraw:
+	""" A Class giving a callback function to draw slanted guiding lines on dsiplay.
+	"""
+	def __init__(self):
+		pass
+
+	def draw(self, cv_img):
+		# print("Type(cv_img): ", cv_img.shape)
+		hh, ww = cv_img.shape[:2]
+		hHalf, wHalf = hh/2.0, ww/2.0
+		delta_hh = int((wHalf)*math.tan(5/180.0))
+		delta_ww = int((hHalf)*math.tan(5/180.0))
+
+		#---- 水平斜5度線
+		p1 = (0, int(hHalf)+delta_hh)
+		p2 = (ww-1, int(hHalf)-delta_hh)
+		cv2.line(cv_img, p1, p2, (0, 0, 255), 4)
+
+		#---- 垂直斜5度線
+		p1 = (int(wHalf)-delta_ww, 0)
+		p2 = (int(wHalf)+delta_ww, hh-1)
+		cv2.line(cv_img, p1, p2, (0, 0, 255), 4)
+
+
 def onClose():
 	global evAckClose
 	evAckClose.set()
@@ -182,6 +207,10 @@ def onClose():
 """
 evAckClose = threading.Event()
 evAckClose.clear()
+
+#----------------------------------------------------
+# MainGUI Initialization
+#----------------------------------------------------
 # url = 'http://192.168.7.1/frame.jpeg'
 url = "http://{}".format(args.host)
 if args.port > 0:
@@ -241,31 +270,16 @@ roi_rects.add("Q01", Qcc, roi_size)
 Qcc = interpolateXY(frame_Vb, frame_CC, corner_field)
 roi_rects.add("Q11", Qcc, roi_size)
 
-#---------- For callback draw
-class appCallbackDraw:
-	def __init__(self):
-		pass
-
-	def draw(self, cv_img):
-		# print("Type(cv_img): ", cv_img.shape)
-		hh, ww = cv_img.shape[:2]
-		hHalf, wHalf = hh/2.0, ww/2.0
-		delta_hh = int((wHalf)*math.tan(5/180.0))
-		delta_ww = int((hHalf)*math.tan(5/180.0))
-
-		#---- 水平斜5度線
-		p1 = (0, int(hHalf)+delta_hh)
-		p2 = (ww-1, int(hHalf)-delta_hh)
-		cv2.line(cv_img, p1, p2, (0, 0, 255), 4)
-
-		#---- 垂直斜5度線
-		p1 = (int(wHalf)-delta_ww, 0)
-		p2 = (int(wHalf)+delta_ww, hh-1)
-		cv2.line(cv_img, p1, p2, (0, 0, 255), 4)
-
+#----------------------------------------------------
+# 註冊 Callback class 畫斜5度導引線
+# !! Callback 是對 ViPanel 註冊 !!
+#----------------------------------------------------
 callbackDraw = appCallbackDraw()
 mainGUI.View.set_callbackObj(callbackDraw)
 
+#----------------------------------------------------
+# Main Loop
+#----------------------------------------------------
 frame_index = 0
 while True:
 	if evAckClose.isSet():
@@ -297,7 +311,6 @@ while True:
 
 	#--- 畫框 and 分數
 	draw_focusing(img, roi_rects, scores)
-
 
 
 	mainGUI.View.show(img, name="#{:04d}".format(frame_index))
