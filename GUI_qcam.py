@@ -122,7 +122,8 @@ def httpGet_jpeg(url):
 
 
 def calcualte_score(img):
-	lap = cv2.Laplacian(img, -1, ksize=3)
+	# lap = cv2.convertScaleAbs(cv2.Laplacian(img, cv2.CV_16S, ksize=3))
+	lap = cv2.convertScaleAbs(cv2.Laplacian(img, cv2.CV_16S, ksize=3)) #-- use cv2.CV16S to prevent from overflow )negative value)
 	score = np.sum(lap)
 	return score, lap
 
