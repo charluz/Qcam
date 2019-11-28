@@ -60,15 +60,15 @@ class MainGUI:
 		# Video Panel
 		#---------------------------------
 		#-- Use frame#0 (upper-left) to display feyeView
-		self.View = tkViPanel(self.L1_Frames[0], osdScale=1.2, size=(720, 540))	# (720, 540), (960, 720)
+		self.View = tkViPanel(self.L1_Frames[2], osdScale=1.2, size=(720, 540))	# (720, 540), (960, 720)
 
 		#---------------------------------
 		# Connection Page
 		#---------------------------------
 		#-- URL
-		TK.Label(self.L1_Frames[1], text="URL: ").pack(side=TK.LEFT, fill=TK.Y)
+		TK.Label(self.L1_Frames[0], text="URL: ").pack(side=TK.LEFT, fill=TK.Y)
 		self.txtURL = TK.StringVar()
-		self.entryURL = TK.Entry(self.L1_Frames[1], width=40, bd=2, textvariable=self.txtURL)
+		self.entryURL = TK.Entry(self.L1_Frames[0], width=40, bd=2, textvariable=self.txtURL)
 		self.entryURL.pack(side=TK.LEFT, expand=TK.YES)
 		# self.txtHost.set("192.168.1.19")
 		self.txtURL.set(self.url)
@@ -81,7 +81,7 @@ class MainGUI:
 		# self.calibFrame.pack(expand=TK.YES)
 
 		#-- Start/Stop button
-		self.btnStart = TK.Button(self.L1_Frames[2], width=20, text="START", state=TK.NORMAL, command=self.command_btnStart)
+		self.btnStart = TK.Button(self.L1_Frames[1], width=20, text="START", state=TK.NORMAL, command=self.command_btnStart)
 		self.btnStart.pack(expand=TK.YES)
 
 		self.root.mainloop()
